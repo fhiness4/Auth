@@ -1,0 +1,44 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="con">
+      <input type="text" placeholder="enter text" id="search">
+<button onclick="fecthed()">fetch data</button>   
+    </div>
+    <script>
+        const con = document.createElement('div')
+        const search = document.getElementById('search')
+        const eror = document.getElementById('con')
+
+        const fecthed = async() => {
+        const res = await fetch(`http://localhost:8000/search/query?search=${search.value}`,{
+            headers:{
+                Accept: 'Application/json'
+            }
+          });
+
+          const fetched = await res.json();
+        console.table(JSON.stringify(fetched))
+         con.innerHTML = ''
+         console.log(fetched.length > 0)
+         if (fetched.length < 0) {
+            eror.innerHTML = '<h1>Data not found</h1>'
+          }
+          else{
+          fetched.forEach((value, id) => {
+            con.innerHTML +=`<br/><br/><hr/>\n item : ${value.item} <br/>price: ${value.price} <br/>DateAdded: ${value.date}`
+          });
+        }
+          document.body.append(con)
+        }
+       
+        search.addEventListener('input', fecthed)
+        
+        
+    </script>
+</body>
+</html>
