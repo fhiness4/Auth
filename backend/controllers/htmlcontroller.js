@@ -31,7 +31,7 @@ const addfile = async(req, res) =>{
    catch (err) {
      res.status(404).json({ 
       success: false, 
-      message: err.message[0],
+      message: err
     });
     console.error('Error:', err);
     
@@ -63,7 +63,7 @@ if (!codeid) {
 		res
 				.status(404)
 				.json({ success: false,
-				message: error.message[0]});
+				message: error});
 	}
 };
 
