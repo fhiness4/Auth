@@ -165,7 +165,7 @@ const sendverification =  async (req, res) =>{
         };
 
 
-        const codevalue =  Math.floor(Math.random() * 100000).toString();
+        const codevalue =  Math.floor(Math.random() * 90000 + 10000).toString();
         // console.log(codevalue)
     let info = await transport.sendMail({
         from: "fhiness434@gmail.com",
