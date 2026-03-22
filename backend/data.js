@@ -2,7 +2,7 @@
 
 const products = [
     {
-        item: 'Dildo',
+        item: 'BUG COCK',
         price: 200,
         date: new Date().getTime(),
         id:1

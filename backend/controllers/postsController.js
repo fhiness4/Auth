@@ -1,5 +1,6 @@
 
 const Post = require('../models/postmodel');
+const user  = require('../models/usersmodel');
 const {createPostSchema} = require('../middlewares/validator')
 
 exports.getPosts = async (req, res) => {
@@ -19,7 +20,7 @@ exports.getPosts = async (req, res) => {
 			.limit(postsPerPage)
 			.populate({
 				path: 'userId',
-				select: 'email',
+				select: ['email', "name","profilepic", "createdAt"],
 			});
 		res.status(200).json({ success: true, message: 'posts', data: result });
 	} catch (error) {
@@ -30,9 +31,9 @@ exports.getPosts = async (req, res) => {
 // create post
 
 exports.createPost = async (req, res) => {
-	const { title, description } = req.body;
-    console.log(req.user)
-	const { userId } = req.user;
+	const { title, description , codeId, postPic, userId} = req.body;
+//   console.log(req.body)
+	//const { userId } = req.user;
 	try {
 		const { error, value } = createPostSchema.validate({
 			title,
@@ -44,13 +45,17 @@ exports.createPost = async (req, res) => {
 				.status(401)
 				.json({ success: false, message: error.details[0].message });
 		}
-
-		const result = await Post.create({
+    
+      const result = await Post.create({
 			title,
 			description,
-			userId,
+			codeId,
+			postPic,
+			userId
 		});
 		res.status(201).json({ success: true, message: 'created', data: result });
+    
+		
 	} catch (error) {
 		console.log(error);
 	}
@@ -62,7 +67,7 @@ exports.singlePost = async (req, res) => {
 	try {
 		const existingPost = await Post.findOne({ _id }).populate({
 			path: 'userId',
-			select: 'email',
+			select: ['email', "name","profilepic", "createdAt"],
 		});
 		if (!existingPost) {
 			return res
@@ -114,19 +119,19 @@ exports.updatePost = async (req, res) => {
 };
 
 exports.deletePost = async (req, res) => {
-	const { _id } = req.query;
+	const { _id , userid} = req.query;
 
-	const { userId } = req.user;
-	try {
-		const existingPost = await Post.findOne({ _id });
-		if (!existingPost) {
-			return res
-				.status(404)
-				.json({ success: false, message: 'Post already unavailable' });
-		}
-		if (existingPost.userId.toString() !== userId) {
-			return res.status(403).json({ success: false, message: 'Unauthorized' });
-		}
+//	const { userId } = req.user;
+  	try {
+  		const existingPost = await Post.findOne({ _id });
+  		if (!existingPost) {
+  			return res
+  				.status(404)
+  				.json({ success: false, message: 'Post already unavailable' });
+  		}
+  		if (existingPost.userId.toString() !== userid) {
+  			return res.status(403).json({ success: false, message: 'Unauthorized' });
+  		}
 
 		await Post.deleteOne({ _id });
 		res.status(200).json({ success: true, message: 'deleted' });

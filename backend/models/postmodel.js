@@ -16,7 +16,17 @@ const postschema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user',
         required: true
-    }
+    },
+    codeId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'htmldata',
+        required: true
+    },
+    postPic:{
+        type: String,
+	    default: null,
+	    required: true
+		}
 },
 {
     timestamps: true

@@ -1025,13 +1025,21 @@ const uploadpic = async (req, res)=>{
 
 // get user data
 const getuserdata = async (req, res)=>{
-    const {email} = req.body;
+    const {id} = req.query;
+    
     try {
-        const existinguser = await user.findOne({ email });
+      if(!id){
+      return res.json(
+        {
+          success: false,
+          message: "id is required"
+        }
+        )
+    }
+    
+        const existinguser = await user.findOne({ _id : id });
 		if (!existinguser) {
-			return res
-				.status(404)
-				.json({ success: false, message: 'User does not exists!' });
+			return res.json({ success: false, message: 'User does not exists!' });
 		}
 
         if(existinguser){
@@ -1046,7 +1054,10 @@ const getuserdata = async (req, res)=>{
 
 
     } catch (error) {
-       console.log(error) 
+      res.json({
+        success: false,
+        message: error.message
+      })
     }
 }
 

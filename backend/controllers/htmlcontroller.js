@@ -57,13 +57,13 @@ if (!codeid) {
 		}
 		res
 			.status(200)
-			.json({ success: true, message: 'single user code', data: existingcode });
+			.json({ success: true, message: 'single user code', data: existingcode});
 	} catch (error) {
 	//	console.log(error);
-		res
-				.status(404)
-				.json({ success: false,
-				message: error});
+	  	res
+	  			.status(404)
+	  			.json({ success: false,
+	  			message: error});
 	}
 };
 
