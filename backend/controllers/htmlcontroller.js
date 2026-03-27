@@ -39,7 +39,7 @@ const addfile = async(req, res) =>{
 }
 
 
-// getting html hasChildNodes
+// getting user html 
 
 const gethtml = async (req, res) => {
 	const { codeid } = req.query;
@@ -89,5 +89,30 @@ const deletehtml = async (req, res) => {
 };
 
 
+// getting single html
+const getsinglehtml = async (req, res) => {
+	const { _id} = req.query;
+	try {
+	  if(!_id){
+	    return res.json({
+	      success: false,
+	      message: "code id is required"
+	    })
+	  }
+		const existingcode = await htmldata.findOne({ _id }).populate({
+				path: 'userId',
+				select: ['email', "name","profilepic", "createdAt"]
+			});
+		if (!existingcode) {
+			return res.status(404).json({ success: false, message: 'code already unavailable' });
+		}
+		res.status(200).json({ success: true, message: 'single code retrived',
+		  existingcode
+		});
+	} catch (error) {
+		console.log(error);
+	}
+};
 
-module.exports = {addfile, gethtml, deletehtml}
+
+module.exports = {addfile, gethtml, deletehtml, getsinglehtml}

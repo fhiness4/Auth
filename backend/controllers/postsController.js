@@ -2,7 +2,7 @@
 const Post = require('../models/postmodel');
 const user  = require('../models/usersmodel');
 const {createPostSchema} = require('../middlewares/validator')
-
+// get posts
 exports.getPosts = async (req, res) => {
 	const { page } = req.query;
 	const postsPerPage = 10;
@@ -18,10 +18,11 @@ exports.getPosts = async (req, res) => {
 			.sort({ createdAt: -1 })
 			.skip(pageNum * postsPerPage)
 			.limit(postsPerPage)
-			.populate({
+			.populate(
+			  {
 				path: 'userId',
-				select: ['email', "name","profilepic", "createdAt"],
-			});
+				select: ['email', "name","profilepic", "createdAt"]
+			 });
 		res.status(200).json({ success: true, message: 'posts', data: result });
 	} catch (error) {
 		console.log(error);
@@ -31,7 +32,7 @@ exports.getPosts = async (req, res) => {
 // create post
 
 exports.createPost = async (req, res) => {
-	const { title, description , codeId, postPic, userId} = req.body;
+	const { title, description , codeId, postPic, userId, tags} = req.body;
 //   console.log(req.body)
 	//const { userId } = req.user;
 	try {
@@ -51,7 +52,8 @@ exports.createPost = async (req, res) => {
 			description,
 			codeId,
 			postPic,
-			userId
+			userId,
+			tags
 		});
 		res.status(201).json({ success: true, message: 'created', data: result });
     
@@ -139,3 +141,124 @@ exports.deletePost = async (req, res) => {
 		console.log(error);
 	}
 };
+
+
+
+// LIKE a post
+exports.likePost = async(req, res) => {
+  const{codeId, userId} = req.body
+  const post = await Post.findOne({_id:codeId});
+  
+  // Check if user already liked
+  if (!post.likedBy.includes(userId)) {
+    post.likes += 1;
+    post.likedBy.push(userId);
+    await post.save();
+    return res.json({ liked: true, likes: post.likes });
+  }else{
+    return res.json({ liked: false, message: 'Already liked!' });
+  }
+  
+}
+
+// UNLIKE a post
+exports.unlikePost = async(req, res) =>{
+  const{codeId, userId} = req.body
+  const post = await Post.findOne({_id:codeId});
+  
+  // Check if user liked
+  if (post.likedBy.includes(userId)) {
+    post.likes -= 1;
+    post.likedBy = post.likedBy.filter(id => id !== userId);
+    await post.save();
+    return res.json({ liked: true, likes: post.likes });
+  }else{
+    return res.json({ liked: false, message: 'Not liked yet!' });
+  }
+}
+
+
+  // Advanced search with likes sorting
+  exports.searchpost = async (req, res) =>{
+    try {
+      const {
+        search,
+        tags,
+        sortBy = 'recents',
+        page = 1,
+        limit = 10,
+      } = req.query;
+
+      // Build query object
+      let query = {};
+
+      // Text search on name and description
+      if (search) {
+        query.title = {
+          $regex: `^${search}`,
+          $options: "i"
+        }
+      }
+
+      // Tag filtering
+      if (tags) {
+        query.tags = {
+          $regex: `^${tags}`,
+          $options: "i"
+        };
+      }
+
+
+      // Build sort object - prioritize likes sorting
+      let sort = {};
+      
+      if (sortBy === 'likes') {
+        sort.likes = -1;
+      }
+       else if (sortBy === 'recents') {
+          sort.createdAt = -1; 
+        }
+        else {
+        sort = { likes: -1, createdAt: -1 };
+      }
+
+      // Calculate pagination
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      // Execute query with pagination
+      const postitems = await Post.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(parseInt(limit)).populate(
+			  {
+				path: 'userId',
+				select: ['email', "name","profilepic", "createdAt"]
+			 }).lean(); 
+
+      // Get total count for pagination
+      const total = await Post.countDocuments(query);
+
+      
+
+      res.json({
+        success: true,
+        data: postitems,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(total / parseInt(limit)),
+          totalItems: total,
+          itemsPerPage: parseInt(limit),
+        },
+        metadata: {
+          sort: sort,
+          filters: query,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
