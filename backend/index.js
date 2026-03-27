@@ -8,6 +8,8 @@ const { extend } = require('joi');
 const app = express();
 const { route } = require('./router/authrouter')
 const { htmlRoute } = require('./router/htmlrouter')
+const {profileRoute} = require('./router/profilerouter')
+const commentRoute = require('./router/commentrouter')
 const  postroute  = require('./router/postrouter')
 const {search, itemvalue, idvalue, random} = require('./router/test')
 const mongoose = require('mongoose')
@@ -26,6 +28,8 @@ mongoose.connect(process.env.Mongo_Url).then(() =>{
 
 
 app.use('/api/posts', postroute)
+app.use('/api/profile', profileRoute)
+app.use('/api/comment', commentRoute)
 app.use('/api/code', htmlRoute)
 app.use('/api/auth', route)
 app.get('/search/query',search)
