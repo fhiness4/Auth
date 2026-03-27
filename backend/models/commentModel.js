@@ -1,15 +1,10 @@
 const { required } = require('joi')
 const mongoose = require('mongoose')
 
-const postschema = mongoose.Schema({
-    title:{
+const commentschema = mongoose.Schema({
+    comment:{
         type: String,
         required: [true, 'title is required'],
-        trim: true
-    },
-    description:{
-        type: String,
-        required: [true, 'description is required'],
         trim: true
     },
     userId:{
@@ -28,21 +23,12 @@ const postschema = mongoose.Schema({
     },
     likedBy:[
       String
-      ],
-      tags:[
-      String
-      ],
-    postPic:{
-        type: String,
-	    required: true
-		}
+      ]
 },
 {
     timestamps: true
 }
 )
 
-module.exports = mongoose.model('Post', postschema)
-
-
+module.exports = mongoose.model('Comment', commentschema)
 
