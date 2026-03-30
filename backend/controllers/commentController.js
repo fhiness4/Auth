@@ -115,7 +115,7 @@ const deleteComment = async(req, res)=> {
 // comment liking
 const likePost = async(req, res) => {
   const{_id, userId} = req.body
-  const post = await Comment.findOne({_id:codeId});
+  const post = await Comment.findOne({_id});
   
   // Check if user already liked
   if (!post.likedBy.includes(userId)) {
