@@ -29,10 +29,17 @@ const postschema = mongoose.Schema({
     likedBy:[
       String
       ],
+      comments: {
+      type: Number,
+      default: 0
+    },
+    commentsBy:[
+      String
+      ],
       tags:[
       String
       ],
-    postPic:{
+     postPic:{
         type: String,
 	    required: true
 		}
