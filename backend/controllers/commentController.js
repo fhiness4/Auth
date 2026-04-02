@@ -1,5 +1,5 @@
 const Comment  = require('../models/commentModel');
-
+const Post = require('../models/postmodel');
 // create comment
 const addComment = async(req, res)=>{
   const {userId, codeId, comment} = req.body;
@@ -9,9 +9,14 @@ const addComment = async(req, res)=>{
       message: "userId , codeId, and comment required!"
     })
   };
+  const existingPost = await Post.findOne({ codeId });
   
   try {
-    const newcomment = new Comment({
+    if (existingPost) {
+      existingPost.comments += 1;
+    existingPost.commentsBy.push(userId);
+    await existingPost.save();
+      const newcomment = new Comment({
       userId,
       codeId,
       comment
@@ -22,6 +27,8 @@ const addComment = async(req, res)=>{
       message: "comment added",
       data: newcomment
     })
+    }
+    
   } catch (e) {
     console.log(e)
     res.json({
@@ -76,19 +83,26 @@ const getComment = async(req,  res)=>{
 }
 // delete comment
 const deleteComment = async(req, res)=> {
-     const{_id, userId} = req.query
-     if (!_id || !userId) {
+     const{_id, userId, codeId} = req.query
+     if (!_id || !userId || !codeId) {
      return  res.json({
          success: false,
          message: "id is required"
        })
      }
      try {
+       const existingPost = await Post.findOne({ codeId });
        const existingComment = await Comment.findOne({_id});
+       if (!existingPost) {
+        return res.json({
+         success: false,
+         message: "post unavailable"
+       })
+       };
        if (!existingComment) {
         return res.json({
          success: false,
-         message: "coee unavailable"
+         message: "comment unavailable"
        })
        };
        if (userId !== existingComment.userId.toString()) {
@@ -97,6 +111,8 @@ const deleteComment = async(req, res)=> {
          message: "unauthorized"
        })
        };
+       existingPost.comments -= 1;
+       await existingPost.save();
        await Comment.deleteOne({_id});
        res.json({
          success: true,
