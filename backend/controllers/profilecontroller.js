@@ -10,20 +10,32 @@ const getprofile = async (req, res)=>{
     })
   }
   try {
+    const existingUser = await user.findOne({_id: userId});
    const existingprofile = await Profile.findOne({userId}).populate(
 			  {
 				path: 'userId',
 				select: ['email', "name","profilepic", "createdAt"]
 			 });
-   if (!existingprofile) {
+		if(existingprofile){
+     return res.json({
+      success: true,
+      data: existingprofile
+    })
+     }else if(!existingprofile || existingUser){
+     return res.json({
+      success: true,
+      data: existingUser
+    })
+   }else if (!existingprofile) {
      return res.json({
       success: false,
       message: "userid not found"
     })
-   }else{
+   }
+   else{
      return res.json({
-      success: true,
-      data: existingprofile
+      success: false,
+      m3ssage: "error"
     })
    }
   } catch (e) {
