@@ -29,6 +29,34 @@ exports.getPosts = async (req, res) => {
 	}
 };
 
+
+// get user posts
+exports.getUserPosts = async (req, res) => {
+	const { page, userId} = req.query;
+	const postsPerPage = 10;
+
+	try {
+		let pageNum = 0;
+		if (page <= 1) {
+			pageNum = 0;
+		} else {
+			pageNum = page - 1;
+		}
+		const result = await Post.find({userId})
+			.sort({ createdAt: -1 })
+			.skip(pageNum * postsPerPage)
+			.limit(postsPerPage)
+			.populate(
+			  {
+				path: 'userId',
+				select: ['email', "name","profilepic", "createdAt"]
+			 });
+		res.status(200).json({ success: true, message: 'posts', data: result });
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 // create post
 
 exports.createPost = async (req, res) => {
@@ -262,3 +290,4 @@ exports.unlikePost = async(req, res) =>{
     }
   }
 
+			
