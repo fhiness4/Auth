@@ -6,6 +6,7 @@ const router = express.Router();
 router.get('/all-posts', postsController.getPosts);
 router.get('/search', postsController.searchpost);
 router.get('/single-post', postsController.singlePost);
+router.get('/single-user-post', postsController.getUserPosts);
 router.post('/create-post', postsController.createPost);
 router.post('/like-post', postsController.likePost);
 router.patch('/unlike-post', postsController.unlikePost);
